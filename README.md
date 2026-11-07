@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# strgl
 
-## Getting Started
+Zentrale Multi-Tenant-Plattform für digitale Produkte (WordPress-Plugins & Webapps): Accounts, Stripe-Billing, Domain-Lizenzen, deutsche Rechnungen, umstellbare MwSt./OSS-Tax-Engine.
 
-First, run the development server:
+## Stack
+
+- Next.js (App Router) + TypeScript + shadcn/ui
+- Neon Postgres + Drizzle ORM
+- Better Auth
+- Stripe + Resend
+- Hosting: Vercel
+
+## Setup
+
+1. `.env` aus `.env.example` anlegen (Neon `DATABASE_URL`, Stripe, Resend, Auth-Secret).
+2. Dependencies: `pnpm install`
+3. Schema push: `pnpm db:push`
+4. Seed Tenant (Tidenhub / strgl): `pnpm db:seed`
+5. Dev-Server: `pnpm dev` (Port **3001**)
+6. Produktion: Repo [hjherbst/strgl](https://github.com/hjherbst/strgl) → Vercel (Deploy bei Push auf `main`)
+7. Account registrieren, dann Admin setzen:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+SEED_ADMIN_EMAIL=deine@mail.de pnpm db:seed
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+8. Stripe Webhook auf `/api/webhooks/stripe` zeigen (lokal: Stripe CLI).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Wichtige APIs
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `POST /api/v1/licenses/validate` – Plugin-Lizenz + Domain
+- `GET /api/v1/entitlements/:productSlug` – Webapp Paid/Freemium (Session)
+- `POST /api/checkout` – Stripe Checkout
+- `POST /api/webhooks/stripe` – Entitlements / Rechnungen
 
-## Learn More
+## Admin
 
-To learn more about Next.js, take a look at the following resources:
+`/admin` – Firma & Tax-Mode, Produkte, Kunden, EU-B2C-Schwellenanzeige.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Tax-Modes (pro Tenant)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `home_vat_below_threshold` (Default): EU-B2C mit Heimat-MwSt.; EU-B2B + gültige USt-IdNr. → Reverse Charge
+- `oss`: vorbereitet für Zielland-MwSt.
+- `home_b2c_only`: Privatkunden nur Heimatland-Adresse
