@@ -18,7 +18,7 @@ Zentrale Multi-Tenant-Plattform für digitale Produkte (WordPress-Plugins & Weba
 4. Dev-Server: `pnpm dev` (Port **3001**)
 5. Produktion: Repo [hjherbst/strgl](https://github.com/hjherbst/strgl) → Vercel
 6. In Vercel: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL=https://strgl.de`
-7. **Wichtig:** `DATABASE_URL` manuell setzen (Neon Dashboard → Connection string → in Vercel Production). Die Neon-Integration allein reicht oft nicht / nutzt andere Namen. Check: `curl -H "Authorization: Bearer $BETTER_AUTH_SECRET" https://strgl.de/api/debug/db`
+7. Neon↔Vercel legt bei diesem Projekt oft `STRGL_DATABASE_URL` an (nicht `DATABASE_URL`) — die App liest beides. Check: `curl -H "Authorization: Bearer $BETTER_AUTH_SECRET" https://strgl.de/api/debug/db`
 8. Nach erstem Deploy einmal Schema+Seed:
 
 ```bash

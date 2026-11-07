@@ -1,14 +1,19 @@
 /**
  * Resolve Postgres URL from common Vercel/Neon env names,
- * including discrete PG* vars from some Neon integrations.
+ * including Neon integration prefixes like STRGL_DATABASE_URL.
  */
 export function getDatabaseUrl() {
   const direct =
     process.env.DATABASE_URL ||
+    process.env.STRGL_DATABASE_URL ||
     process.env.POSTGRES_URL ||
+    process.env.STRGL_POSTGRES_URL ||
     process.env.POSTGRES_PRISMA_URL ||
+    process.env.STRGL_POSTGRES_PRISMA_URL ||
     process.env.DATABASE_URL_UNPOOLED ||
+    process.env.STRGL_DATABASE_URL_UNPOOLED ||
     process.env.POSTGRES_URL_NON_POOLING ||
+    process.env.STRGL_POSTGRES_URL_NON_POOLING ||
     process.env.NEON_DATABASE_URL ||
     process.env.POSTGRES_DATABASE_URL ||
     process.env.STORAGE_URL;
@@ -17,14 +22,34 @@ export function getDatabaseUrl() {
     return direct.trim();
   }
 
-  const host = process.env.PGHOST || process.env.POSTGRES_HOST;
-  const user = process.env.PGUSER || process.env.POSTGRES_USER;
-  const password = process.env.PGPASSWORD || process.env.POSTGRES_PASSWORD;
+  const host =
+    process.env.PGHOST ||
+    process.env.STRGL_PGHOST ||
+    process.env.POSTGRES_HOST ||
+    process.env.STRGL_POSTGRES_HOST;
+  const user =
+    process.env.PGUSER ||
+    process.env.STRGL_PGUSER ||
+    process.env.POSTGRES_USER ||
+    process.env.STRGL_POSTGRES_USER;
+  const password =
+    process.env.PGPASSWORD ||
+    process.env.STRGL_PGPASSWORD ||
+    process.env.POSTGRES_PASSWORD ||
+    process.env.STRGL_POSTGRES_PASSWORD;
   const database =
     process.env.PGDATABASE ||
+    process.env.STRGL_PGDATABASE ||
     process.env.POSTGRES_DATABASE ||
-    process.env.POSTGRES_DB;
-  const port = process.env.PGPORT || process.env.POSTGRES_PORT || "5432";
+    process.env.STRGL_POSTGRES_DATABASE ||
+    process.env.POSTGRES_DB ||
+    process.env.STRGL_POSTGRES_DB;
+  const port =
+    process.env.PGPORT ||
+    process.env.STRGL_PGPORT ||
+    process.env.POSTGRES_PORT ||
+    process.env.STRGL_POSTGRES_PORT ||
+    "5432";
 
   if (host && user && password && database) {
     const encUser = encodeURIComponent(user);
@@ -39,25 +64,42 @@ export function getDatabaseUrl() {
 export function listDatabaseEnvKeys() {
   const candidates = [
     "DATABASE_URL",
+    "STRGL_DATABASE_URL",
     "DATABASE_URL_UNPOOLED",
+    "STRGL_DATABASE_URL_UNPOOLED",
     "POSTGRES_URL",
+    "STRGL_POSTGRES_URL",
     "POSTGRES_PRISMA_URL",
+    "STRGL_POSTGRES_PRISMA_URL",
     "POSTGRES_URL_NON_POOLING",
+    "STRGL_POSTGRES_URL_NON_POOLING",
     "NEON_DATABASE_URL",
     "POSTGRES_DATABASE_URL",
     "STORAGE_URL",
     "PGHOST",
+    "STRGL_PGHOST",
     "PGHOST_UNPOOLED",
+    "STRGL_PGHOST_UNPOOLED",
     "PGUSER",
+    "STRGL_PGUSER",
     "PGPASSWORD",
+    "STRGL_PGPASSWORD",
     "PGDATABASE",
+    "STRGL_PGDATABASE",
     "PGPORT",
+    "STRGL_PGPORT",
     "POSTGRES_HOST",
+    "STRGL_POSTGRES_HOST",
     "POSTGRES_USER",
+    "STRGL_POSTGRES_USER",
     "POSTGRES_PASSWORD",
+    "STRGL_POSTGRES_PASSWORD",
     "POSTGRES_DATABASE",
+    "STRGL_POSTGRES_DATABASE",
     "POSTGRES_DB",
+    "STRGL_POSTGRES_DB",
     "POSTGRES_PORT",
+    "STRGL_POSTGRES_PORT",
   ];
 
   return candidates.filter((key) => {
