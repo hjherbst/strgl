@@ -14,19 +14,24 @@ Zentrale Multi-Tenant-Plattform für digitale Produkte (WordPress-Plugins & Weba
 
 1. `.env` aus `.env.example` anlegen (Neon `DATABASE_URL`, Stripe, Resend, Auth-Secret).
 2. Dependencies: `pnpm install`
-3. Schema push: `pnpm db:push` (läuft auf Vercel auch automatisch im `build`)
-4. Seed Tenant (Tidenhub / strgl): `pnpm db:seed` (einmalig gegen Neon, mit `DATABASE_URL` aus Vercel)
-5. Dev-Server: `pnpm dev` (Port **3001**)
-6. Produktion: Repo [hjherbst/strgl](https://github.com/hjherbst/strgl) → Vercel (Deploy bei Push auf `main`)
-7. In Vercel setzen: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL=https://strgl.de`
-8. DB-URL von Neon muss zur **Build-Zeit** verfügbar sein (`DATABASE_URL` oder `POSTGRES_URL`, Environment: Production)
-9. Account registrieren, dann Admin setzen:
+3. Lokal Schema: `pnpm db:push` + `pnpm db:seed` (mit Neon-URL in `.env`)
+4. Dev-Server: `pnpm dev` (Port **3001**)
+5. Produktion: Repo [hjherbst/strgl](https://github.com/hjherbst/strgl) → Vercel
+6. In Vercel: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL=https://strgl.de` (+ Neon-DB-Connection)
+7. Nach erstem Deploy einmal Schema+Seed (Runtime, weil Neon-URL oft nicht im Build greift):
+
+```bash
+curl -X POST https://strgl.de/api/setup \
+  -H "Authorization: Bearer DEIN_BETTER_AUTH_SECRET"
+```
+
+8. Account registrieren, dann Admin setzen:
 
 ```bash
 SEED_ADMIN_EMAIL=deine@mail.de pnpm db:seed
 ```
 
-10. Stripe Webhook auf `/api/webhooks/stripe` zeigen (lokal: Stripe CLI).
+9. Stripe Webhook auf `/api/webhooks/stripe` zeigen (lokal: Stripe CLI).
 
 ## Wichtige APIs
 

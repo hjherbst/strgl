@@ -17,15 +17,10 @@ function getDatabaseUrl() {
 
 const url = getDatabaseUrl();
 
-if (!url) {
-  throw new Error(
-    "No database URL found. Set DATABASE_URL or POSTGRES_URL (Neon/Vercel).",
-  );
-}
-
 export default defineConfig({
   schema: "./src/lib/db/schema.ts",
   out: "./drizzle",
   dialect: "postgresql",
-  dbCredentials: { url },
+  // url optional for `generate`; required for `push`/`studio`
+  dbCredentials: { url: url || "postgresql://placeholder:placeholder@localhost:5432/placeholder" },
 });
