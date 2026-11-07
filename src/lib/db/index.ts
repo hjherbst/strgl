@@ -1,5 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
+import { getDatabaseUrl } from "./env";
 import * as schema from "./schema";
 
 type Db = ReturnType<typeof drizzle<typeof schema>>;
@@ -7,9 +8,11 @@ type Db = ReturnType<typeof drizzle<typeof schema>>;
 const globalForDb = globalThis as unknown as { db?: Db };
 
 function createDb(): Db {
-  const url = process.env.DATABASE_URL;
+  const url = getDatabaseUrl();
   if (!url) {
-    throw new Error("DATABASE_URL is not set");
+    throw new Error(
+      "No database URL found. Set DATABASE_URL or POSTGRES_URL (Neon/Vercel).",
+    );
   }
   const sql = neon(url);
   return drizzle(sql, { schema });
