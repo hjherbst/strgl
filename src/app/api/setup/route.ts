@@ -1,9 +1,12 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
-import { migrate } from "drizzle-orm/neon-http/migrator";
+import { Pool, neonConfig } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-serverless";
+import { migrate } from "drizzle-orm/neon-serverless/migrator";
 import { NextResponse } from "next/server";
+import ws from "ws";
 import { getDatabaseUrl } from "@/lib/db/env";
 import { runSeed } from "@/lib/seed";
+
+neonConfig.webSocketConstructor = ws;
 
 /**
  * Runtime DB setup (Neon URL is often unavailable at Vercel build time).
@@ -28,9 +31,10 @@ export async function POST(req: Request) {
     );
   }
 
+  const pool = new Pool({ connectionString: url });
+
   try {
-    const sql = neon(url);
-    const db = drizzle(sql);
+    const db = drizzle(pool);
     await migrate(db, { migrationsFolder: "drizzle" });
     const seed = await runSeed();
     return NextResponse.json({ ok: true, migrated: true, seeded: true, seed });
@@ -43,5 +47,7 @@ export async function POST(req: Request) {
       },
       { status: 500 },
     );
+  } finally {
+    await pool.end().catch(() => undefined);
   }
 }

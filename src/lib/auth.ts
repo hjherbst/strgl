@@ -4,7 +4,14 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 
+const appUrl =
+  process.env.BETTER_AUTH_URL?.replace(/\/$/, "") ||
+  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
+  "http://localhost:3001";
+
 export const auth = betterAuth({
+  baseURL: appUrl,
+  secret: process.env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
@@ -45,20 +52,33 @@ export const auth = betterAuth({
     user: {
       create: {
         after: async (created) => {
-          const tenant = await db.query.tenants.findFirst({
-            where: eq(schema.tenants.slug, "strgl"),
-          });
-          if (tenant) {
+          try {
+            const tenant = await db.query.tenants.findFirst({
+              where: eq(schema.tenants.slug, "strgl"),
+            });
+            if (!tenant) return;
+
+            const isAdminSeed =
+              process.env.SEED_ADMIN_EMAIL &&
+              created.email.toLowerCase() ===
+                process.env.SEED_ADMIN_EMAIL.toLowerCase();
+
             await db
               .update(schema.user)
-              .set({ tenantId: tenant.id, country: "DE" })
+              .set({
+                tenantId: tenant.id,
+                country: "DE",
+                ...(isAdminSeed ? { role: "admin" as const } : {}),
+              })
               .where(eq(schema.user.id, created.id));
+          } catch (error) {
+            console.error("[auth] post-create hook failed", error);
           }
         },
       },
     },
   },
-  trustedOrigins: [process.env.BETTER_AUTH_URL ?? "http://localhost:3001"],
+  trustedOrigins: [appUrl, "https://strgl.de", "http://localhost:3001"],
 });
 
 export type Session = typeof auth.$Infer.Session;

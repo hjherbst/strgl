@@ -103,13 +103,15 @@ export async function runSeed() {
     ]);
   }
 
-  const adminEmail = process.env.SEED_ADMIN_EMAIL;
+  const adminEmail = process.env.SEED_ADMIN_EMAIL?.toLowerCase();
+  let promotedAdmin: string | null = null;
   if (adminEmail) {
     await db
       .update(user)
       .set({ role: "admin", tenantId: tid })
       .where(eq(user.email, adminEmail));
+    promotedAdmin = adminEmail;
   }
 
-  return { tenantId: tid };
+  return { tenantId: tid, promotedAdmin };
 }
