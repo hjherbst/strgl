@@ -17,21 +17,22 @@ Zentrale Multi-Tenant-Plattform für digitale Produkte (WordPress-Plugins & Weba
 3. Lokal Schema: `pnpm db:push` + `pnpm db:seed` (mit Neon-URL in `.env`)
 4. Dev-Server: `pnpm dev` (Port **3001**)
 5. Produktion: Repo [hjherbst/strgl](https://github.com/hjherbst/strgl) → Vercel
-6. In Vercel: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL=https://strgl.de` (+ Neon-DB-Connection)
-7. Nach erstem Deploy einmal Schema+Seed (Runtime, weil Neon-URL oft nicht im Build greift):
+6. In Vercel: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL=https://strgl.de`
+7. **Wichtig:** `DATABASE_URL` manuell setzen (Neon Dashboard → Connection string → in Vercel Production). Die Neon-Integration allein reicht oft nicht / nutzt andere Namen. Check: `curl -H "Authorization: Bearer $BETTER_AUTH_SECRET" https://strgl.de/api/debug/db`
+8. Nach erstem Deploy einmal Schema+Seed:
 
 ```bash
 curl -X POST https://strgl.de/api/setup \
   -H "Authorization: Bearer DEIN_BETTER_AUTH_SECRET"
 ```
 
-8. Account registrieren, dann Admin setzen:
+9. Account registrieren, dann Admin setzen:
 
 ```bash
 SEED_ADMIN_EMAIL=deine@mail.de pnpm db:seed
 ```
 
-9. Stripe Webhook auf `/api/webhooks/stripe` zeigen (lokal: Stripe CLI).
+10. Stripe Webhook auf `/api/webhooks/stripe` zeigen (lokal: Stripe CLI).
 
 ## Wichtige APIs
 
