@@ -3,9 +3,14 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 
 export async function getSession() {
-  return auth.api.getSession({
-    headers: await headers(),
-  });
+  try {
+    return await auth.api.getSession({
+      headers: await headers(),
+    });
+  } catch (error) {
+    console.error("[auth] getSession failed", error);
+    return null;
+  }
 }
 
 export async function requireSession() {
