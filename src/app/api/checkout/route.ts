@@ -5,6 +5,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { plans, user } from "@/lib/db/schema";
+import { getAppUrl } from "@/lib/app-url";
 import { getStripe } from "@/lib/stripe";
 import { decideTax } from "@/lib/tax/engine";
 import { getRequestTenant } from "@/lib/tenant/resolve";
@@ -54,7 +55,7 @@ export async function POST(req: Request) {
   }
 
   const stripe = getStripe(tenant);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001";
+  const appUrl = await getAppUrl();
 
   let customerId = buyer.stripeCustomerId;
   if (!customerId) {

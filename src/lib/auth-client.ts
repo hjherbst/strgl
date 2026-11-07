@@ -2,6 +2,5 @@
 
 import { createAuthClient } from "better-auth/react";
 
-export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL,
-});
+// Same-origin on strgl.de / localhost — no NEXT_PUBLIC_APP_URL required.
+export const authClient = createAuthClient();

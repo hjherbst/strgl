@@ -18,7 +18,7 @@ Zentrale Multi-Tenant-Plattform für digitale Produkte (WordPress-Plugins & Weba
 4. Seed Tenant (Tidenhub / strgl): `pnpm db:seed` (einmalig gegen Neon, mit `DATABASE_URL` aus Vercel)
 5. Dev-Server: `pnpm dev` (Port **3001**)
 6. Produktion: Repo [hjherbst/strgl](https://github.com/hjherbst/strgl) → Vercel (Deploy bei Push auf `main`)
-7. In Vercel setzen: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL=https://strgl.de`, `NEXT_PUBLIC_APP_URL=https://strgl.de`
+7. In Vercel setzen: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL=https://strgl.de` (`NEXT_PUBLIC_APP_URL` optional)
 8. Account registrieren, dann Admin setzen:
 
 ```bash

@@ -12,6 +12,7 @@ import { grantEntitlement } from "@/lib/entitlements";
 import { createId } from "@/lib/id";
 import { bumpEuB2cYtd, issueInvoice } from "@/lib/invoices";
 import { createLicense } from "@/lib/licenses";
+import { getAppUrl } from "@/lib/app-url";
 import { sendMail } from "@/lib/mail";
 import type { ResolvedTenant } from "@/lib/tenant/resolve";
 import { decideTax } from "@/lib/tax/engine";
@@ -134,6 +135,7 @@ export async function fulfillCheckout(opts: {
     await bumpEuB2cYtd(opts.tenant.tenant.id, tax.netCents);
   }
 
+  const appUrl = await getAppUrl();
   await sendMail(opts.tenant, {
     to: buyer.email,
     subject: `Kaufbestätigung ${invoice.number}`,
@@ -141,7 +143,7 @@ export async function fulfillCheckout(opts: {
 <p>vielen Dank für Ihren Kauf von <strong>${product.name}</strong> (${plan.name}).</p>
 <p>Rechnung: <strong>${invoice.number}</strong></p>
 ${licenseKey ? `<p>Lizenzschlüssel: <code>${licenseKey}</code></p>` : ""}
-<p>Ihr Account: <a href="${process.env.NEXT_PUBLIC_APP_URL}/account">Mein Konto</a></p>`,
+<p>Ihr Account: <a href="${appUrl}/account">Mein Konto</a></p>`,
   });
 
   return { orderId, subscriptionId, invoice, licenseKey };
