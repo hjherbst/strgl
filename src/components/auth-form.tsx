@@ -33,7 +33,12 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       router.push("/account");
       router.refresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Fehler");
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : "Registrierung/Login fehlgeschlagen";
+      toast.error(message);
+      console.error("[auth-form]", err);
     } finally {
       setLoading(false);
     }

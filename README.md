@@ -10,12 +10,14 @@ Zentrale Multi-Tenant-Plattform für digitale Produkte (WordPress-Plugins & Weba
 - Stripe + Resend
 - Hosting: Vercel
 
-## Setup
+## Setup (lokal gegen Live-Neon-DB)
 
-1. `.env` aus `.env.example` anlegen (Neon `DATABASE_URL`, Stripe, Resend, Auth-Secret).
-2. Dependencies: `pnpm install`
-3. Lokal Schema: `pnpm db:push` + `pnpm db:seed` (mit Neon-URL in `.env`)
-4. Dev-Server: `pnpm dev` (Port **3001**)
+1. `cp .env.local.example .env.local`
+2. In Vercel → Env Vars den Wert von `STRGL_DATABASE_URL` (und `BETTER_AUTH_SECRET`) nach `.env.local` kopieren
+3. `pnpm install`
+4. Schema + Seed gegen Neon: `pnpm db:setup`
+5. Dev-Server: `pnpm dev` → http://localhost:3001
+6. Registrieren mit `SEED_ADMIN_EMAIL` (z.B. hj@strgl.de)
 5. Produktion: Repo [hjherbst/strgl](https://github.com/hjherbst/strgl) → Vercel
 6. In Vercel: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL=https://strgl.de`
 7. Neon↔Vercel legt bei diesem Projekt oft `STRGL_DATABASE_URL` an (nicht `DATABASE_URL`) — die App liest beides. Check: `curl -H "Authorization: Bearer $BETTER_AUTH_SECRET" https://strgl.de/api/debug/db`
