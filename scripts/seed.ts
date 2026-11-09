@@ -1,9 +1,13 @@
-import "dotenv/config";
+import { config } from "dotenv";
+
+config({ path: ".env.local" });
+config({ path: ".env" });
+
 import { runSeed } from "../src/lib/seed";
 
 runSeed()
-  .then(() => {
-    console.log("Seed complete for tenant strgl");
+  .then((result) => {
+    console.log("Seed complete for tenant strgl", result);
   })
   .catch((err) => {
     console.error(err);
