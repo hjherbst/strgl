@@ -10,6 +10,10 @@ export default function LoginPage() {
         <Link href="/register" className="underline">
           Registrieren
         </Link>
+        {" · "}
+        <Link href="/forgot-password" className="underline">
+          Passwort vergessen
+        </Link>
       </p>
       <AuthForm mode="login" />
     </div>

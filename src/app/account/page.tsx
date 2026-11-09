@@ -21,6 +21,7 @@ import {
 import { getRequestTenant } from "@/lib/tenant/resolve";
 import { cn } from "@/lib/utils";
 import { CancelSubscriptionButton } from "@/components/cancel-subscription-button";
+import { ChangePasswordForm } from "@/components/change-password-form";
 import { ProfileForm } from "@/components/profile-form";
 import { SignOutButton } from "@/components/sign-out-button";
 
@@ -93,6 +94,18 @@ export default async function AccountPage() {
               vatId: session.user.vatId ?? "",
             }}
           />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Passwort ändern</CardTitle>
+          <CardDescription>
+            Andere Sitzungen werden nach dem Ändern abgemeldet.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChangePasswordForm />
         </CardContent>
       </Card>
 

@@ -3,6 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
+import { sendSystemMail } from "@/lib/mail";
 
 const appUrl =
   process.env.BETTER_AUTH_URL?.replace(/\/$/, "") ||
@@ -23,6 +24,17 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    resetPasswordTokenExpiresIn: 60 * 60,
+    sendResetPassword: async ({ user, url }) => {
+      await sendSystemMail({
+        to: user.email,
+        subject: "Passwort zurücksetzen · strgl",
+        html: `<p>Hallo ${user.name || ""},</p>
+<p>du hast eine Zurücksetzung deines Passworts angefordert.</p>
+<p><a href="${url}">Neues Passwort festlegen</a></p>
+<p>Der Link ist eine Stunde gültig. Wenn du das nicht warst, ignoriere diese Mail.</p>`,
+      });
+    },
   },
   user: {
     additionalFields: {
