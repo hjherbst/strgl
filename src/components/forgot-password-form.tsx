@@ -24,7 +24,11 @@ export function ForgotPasswordForm() {
         redirectTo,
       });
       if (res.error) {
-        throw new Error(res.error.message || "Anfrage fehlgeschlagen");
+        throw new Error(
+          res.error.message ||
+            res.error.statusText ||
+            "Anfrage fehlgeschlagen",
+        );
       }
       setSent(true);
       toast.success("Falls die E-Mail existiert, wurde ein Link gesendet");

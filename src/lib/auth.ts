@@ -25,13 +25,15 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     resetPasswordTokenExpiresIn: 60 * 60,
-    sendResetPassword: async ({ user, url }) => {
+    sendResetPassword: async ({ user, token }) => {
+      // Link directly to the app page with the token (avoids /api/auth callback hops).
+      const resetUrl = `${appUrl}/reset-password?token=${encodeURIComponent(token)}`;
       await sendSystemMail({
         to: user.email,
         subject: "Passwort zurücksetzen · strgl",
         html: `<p>Hallo ${user.name || ""},</p>
 <p>du hast eine Zurücksetzung deines Passworts angefordert.</p>
-<p><a href="${url}">Neues Passwort festlegen</a></p>
+<p><a href="${resetUrl}">Neues Passwort festlegen</a></p>
 <p>Der Link ist eine Stunde gültig. Wenn du das nicht warst, ignoriere diese Mail.</p>`,
       });
     },

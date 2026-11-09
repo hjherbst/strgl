@@ -12,8 +12,9 @@ export function ChangePasswordForm() {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const formEl = e.currentTarget;
     setLoading(true);
-    const form = new FormData(e.currentTarget);
+    const form = new FormData(formEl);
     const currentPassword = String(form.get("currentPassword") ?? "");
     const newPassword = String(form.get("newPassword") ?? "");
     const confirmPassword = String(form.get("confirmPassword") ?? "");
@@ -31,10 +32,16 @@ export function ChangePasswordForm() {
         newPassword,
         revokeOtherSessions: true,
       });
-      if (res.error) throw new Error(res.error.message || "Änderung fehlgeschlagen");
+      if (res.error) {
+        throw new Error(
+          res.error.message ||
+            res.error.statusText ||
+            "Änderung fehlgeschlagen",
+        );
+      }
 
       toast.success("Passwort geändert");
-      e.currentTarget.reset();
+      formEl.reset();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Fehler");
     } finally {

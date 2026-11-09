@@ -47,7 +47,11 @@ export function ResetPasswordForm() {
         token,
       });
       if (res.error) {
-        throw new Error(res.error.message || "Zurücksetzen fehlgeschlagen");
+        throw new Error(
+          res.error.message ||
+            res.error.statusText ||
+            "Zurücksetzen fehlgeschlagen",
+        );
       }
 
       toast.success("Passwort gespeichert — bitte einloggen");
