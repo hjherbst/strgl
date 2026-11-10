@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { PasswordInput } from "@/components/password-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,10 +65,9 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       </div>
       <div className="space-y-2">
         <Label htmlFor="password">Passwort</Label>
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           required
           minLength={8}
           autoComplete={mode === "login" ? "current-password" : "new-password"}

@@ -3,8 +3,8 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { PasswordInput } from "@/components/password-input";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 
@@ -67,10 +67,9 @@ export function ResetPasswordForm() {
     <form onSubmit={onSubmit} className="flex w-full max-w-md flex-col gap-4">
       <div className="space-y-2">
         <Label htmlFor="newPassword">Neues Passwort</Label>
-        <Input
+        <PasswordInput
           id="newPassword"
           name="newPassword"
-          type="password"
           required
           minLength={8}
           autoComplete="new-password"
@@ -78,10 +77,9 @@ export function ResetPasswordForm() {
       </div>
       <div className="space-y-2">
         <Label htmlFor="confirmPassword">Wiederholen</Label>
-        <Input
+        <PasswordInput
           id="confirmPassword"
           name="confirmPassword"
-          type="password"
           required
           minLength={8}
           autoComplete="new-password"
