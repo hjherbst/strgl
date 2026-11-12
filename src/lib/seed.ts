@@ -88,6 +88,7 @@ export async function runSeed() {
         interval: "year",
         priceCents: 4900,
         maxSites: 1,
+        creditsAmount: 0,
         active: true,
       },
       {
@@ -98,6 +99,67 @@ export async function runSeed() {
         interval: "year",
         priceCents: 9900,
         maxSites: 5,
+        creditsAmount: 0,
+        active: true,
+      },
+    ]);
+  }
+
+  const storyboards = await db.query.products.findFirst({
+    where: eq(products.slug, "storyboards"),
+  });
+
+  if (!storyboards) {
+    const productId = createId("prod");
+    await db.insert(products).values({
+      id: productId,
+      tenantId: tid,
+      slug: "storyboards",
+      name: "Storyboards AI",
+      description:
+        "WordPress Storyboards Plugin — free editor, paid AI credits for Beat Tranches.",
+      type: "plugin",
+      features: [
+        "ai_assistant",
+        "ai_description",
+        "ai_script",
+        "ai_image",
+      ],
+      active: true,
+    });
+
+    await db.insert(plans).values([
+      {
+        id: createId("plan"),
+        tenantId: tid,
+        productId,
+        name: "50 AI Credits",
+        interval: "one_time",
+        priceCents: 900,
+        maxSites: 1,
+        creditsAmount: 50,
+        active: true,
+      },
+      {
+        id: createId("plan"),
+        tenantId: tid,
+        productId,
+        name: "200 AI Credits",
+        interval: "one_time",
+        priceCents: 2900,
+        maxSites: 3,
+        creditsAmount: 200,
+        active: true,
+      },
+      {
+        id: createId("plan"),
+        tenantId: tid,
+        productId,
+        name: "500 AI Credits",
+        interval: "one_time",
+        priceCents: 5900,
+        maxSites: 5,
+        creditsAmount: 500,
         active: true,
       },
     ]);

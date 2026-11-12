@@ -13,10 +13,10 @@ export function SiteHeader({ brand = "strgl" }: { brand?: string }) {
         </Link>
         <nav className="flex items-center gap-2 text-sm">
           <Link
-            href="/pricing"
+            href="/products"
             className={cn(buttonVariants({ variant: "ghost" }))}
           >
-            Preise
+            Produkte
           </Link>
           <Suspense
             fallback={

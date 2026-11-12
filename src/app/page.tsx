@@ -21,7 +21,7 @@ export default function HomePage() {
           einem Ort – für dich und bald als White-Label für andere.
         </p>
         <div className="flex flex-wrap gap-3">
-          <Link href="/pricing" className={cn(buttonVariants({ size: "lg" }))}>
+          <Link href="/products" className={cn(buttonVariants({ size: "lg" }))}>
             Produkte ansehen
           </Link>
           <Link

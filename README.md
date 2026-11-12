@@ -40,8 +40,15 @@ SEED_ADMIN_EMAIL=deine@mail.de pnpm db:seed
 
 - `POST /api/v1/licenses/validate` – Plugin-Lizenz + Domain
 - `GET /api/v1/entitlements/:productSlug` – Webapp Paid/Freemium (Session)
+- `POST /api/v1/credits/balance` – AI-Credit-Saldo (licenseKey + domain)
+- `POST /api/v1/credits/consume` – Credits abziehen (Idempotenz-Key)
+- `POST /api/v1/ai/storyboards/{stage}` – Storyboards AI-Proxy (intake, story-core, expand, shotlist, edit-plan, guardrails, scene-*)
 - `POST /api/checkout` – Stripe Checkout
-- `POST /api/webhooks/stripe` – Entitlements / Rechnungen
+- `POST /api/webhooks/stripe` – Entitlements / Credits / Rechnungen
+
+### Storyboards AI Credits
+
+Produkt-Slug `storyboards` (Seed). Credit-Packs setzen `plans.credits_amount`. Kauf gutschreibt Wallet + stellt bei Plugins eine Domain-Lizenz aus. Optional `STORYBOARDS_OPENAI_API_KEY` / `STORYBOARDS_OPENAI_MODEL` für echte Generierung; sonst Stub-Pipeline. Produktkatalog: `/products`, Kaufoptionen: `/products/storyboards`.
 
 ## Admin
 

@@ -60,6 +60,14 @@ export const userRoleEnum = pgEnum("user_role", [
   "platform_admin",
 ]);
 
+export const creditLedgerTypeEnum = pgEnum("credit_ledger_type", [
+  "purchase",
+  "consume",
+  "refund",
+  "grant",
+  "adjust",
+]);
+
 // --- Auth (Better Auth) ---
 
 export const user = pgTable("user", {
@@ -229,6 +237,8 @@ export const plans = pgTable("plans", {
   priceCents: integer("price_cents").notNull(),
   currency: text("currency").notNull().default("eur"),
   maxSites: integer("max_sites").default(1),
+  /** Credits granted on purchase (0 = none / license-only). */
+  creditsAmount: integer("credits_amount").notNull().default(0),
   active: boolean("active").notNull().default(true),
   stripePriceId: text("stripe_price_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -449,6 +459,58 @@ export const auditLogs = pgTable("audit_logs", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// --- AI Credits ---
+
+export const creditWallets = pgTable(
+  "credit_wallets",
+  {
+    id: text("id").primaryKey(),
+    tenantId: text("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    productId: text("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    licenseId: text("license_id").references(() => licenses.id, {
+      onDelete: "set null",
+    }),
+    balance: integer("balance").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("credit_wallets_user_product").on(t.userId, t.productId),
+    index("credit_wallets_license").on(t.licenseId),
+  ],
+);
+
+export const creditLedger = pgTable(
+  "credit_ledger",
+  {
+    id: text("id").primaryKey(),
+    tenantId: text("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    walletId: text("wallet_id")
+      .notNull()
+      .references(() => creditWallets.id, { onDelete: "cascade" }),
+    type: creditLedgerTypeEnum("type").notNull(),
+    amount: integer("amount").notNull(),
+    balanceAfter: integer("balance_after").notNull(),
+    idempotencyKey: text("idempotency_key").notNull(),
+    reason: text("reason"),
+    meta: jsonb("meta").$type<Record<string, unknown>>(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("credit_ledger_idempotency").on(t.idempotencyKey),
+    index("credit_ledger_wallet").on(t.walletId),
+  ],
+);
+
 export type Tenant = typeof tenants.$inferSelect;
 export type TenantSettings = typeof tenantSettings.$inferSelect;
 export type TenantTaxConfig = typeof tenantTaxConfig.$inferSelect;
@@ -458,3 +520,5 @@ export type User = typeof user.$inferSelect;
 export type Entitlement = typeof entitlements.$inferSelect;
 export type License = typeof licenses.$inferSelect;
 export type Invoice = typeof invoices.$inferSelect;
+export type CreditWallet = typeof creditWallets.$inferSelect;
+export type CreditLedgerEntry = typeof creditLedger.$inferSelect;

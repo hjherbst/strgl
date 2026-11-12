@@ -117,7 +117,7 @@ export default async function AccountPage() {
           {ents.length === 0 && (
             <p className="text-sm text-muted-foreground">
               Noch keine Produkte.{" "}
-              <Link href="/pricing" className="underline">
+              <Link href="/products" className="underline">
                 Jetzt buchen
               </Link>
             </p>

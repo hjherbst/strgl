@@ -1,6 +1,7 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
+  licenses,
   orders,
   plans,
   products,
@@ -8,6 +9,7 @@ import {
   tenantTaxConfig,
   user,
 } from "@/lib/db/schema";
+import { creditWallet } from "@/lib/credits";
 import { grantEntitlement } from "@/lib/entitlements";
 import { createId } from "@/lib/id";
 import { bumpEuB2cYtd, issueInvoice } from "@/lib/invoices";
@@ -89,16 +91,49 @@ export async function fulfillCheckout(opts: {
   });
 
   let licenseKey: string | undefined;
+  let licenseId: string | undefined;
   if (product.type === "plugin") {
-    const lic = await createLicense({
+    // Reuse an existing active license for credit top-ups; otherwise create one.
+    const existingLic = await db.query.licenses.findFirst({
+      where: and(
+        eq(licenses.userId, opts.userId),
+        eq(licenses.productId, product.id),
+        eq(licenses.status, "active"),
+      ),
+    });
+    if (existingLic) {
+      licenseKey = existingLic.key;
+      licenseId = existingLic.id;
+    } else {
+      const lic = await createLicense({
+        tenantId: opts.tenant.tenant.id,
+        userId: opts.userId,
+        productId: product.id,
+        planId: plan.id,
+        maxActivations: plan.maxSites ?? 1,
+        prefix: opts.tenant.settings.invoicePrefix,
+      });
+      licenseKey = lic.key;
+      licenseId = lic.id;
+    }
+  }
+
+  if (plan.creditsAmount > 0) {
+    await creditWallet({
       tenantId: opts.tenant.tenant.id,
       userId: opts.userId,
       productId: product.id,
-      planId: plan.id,
-      maxActivations: plan.maxSites ?? 1,
-      prefix: opts.tenant.settings.invoicePrefix,
+      licenseId: licenseId ?? null,
+      amount: plan.creditsAmount,
+      type: "purchase",
+      idempotencyKey: `purchase_${orderId}`,
+      reason: `Purchase ${plan.name}`,
+      meta: {
+        orderId,
+        planId: plan.id,
+        creditsAmount: plan.creditsAmount,
+      },
     });
-    licenseKey = lic.key;
   }
 
   const buyerAddress = [
@@ -143,10 +178,11 @@ export async function fulfillCheckout(opts: {
 <p>vielen Dank für Ihren Kauf von <strong>${product.name}</strong> (${plan.name}).</p>
 <p>Rechnung: <strong>${invoice.number}</strong></p>
 ${licenseKey ? `<p>Lizenzschlüssel: <code>${licenseKey}</code></p>` : ""}
+${plan.creditsAmount > 0 ? `<p>AI-Credits gutgeschrieben: <strong>${plan.creditsAmount}</strong></p>` : ""}
 <p>Ihr Account: <a href="${appUrl}/account">Mein Konto</a></p>`,
   });
 
-  return { orderId, subscriptionId, invoice, licenseKey };
+  return { orderId, subscriptionId, invoice, licenseKey, credits: plan.creditsAmount };
 }
 
 export async function cancelSubscriptionAtPeriodEnd(opts: {

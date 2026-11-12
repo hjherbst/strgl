@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { plans, user } from "@/lib/db/schema";
+import { plans, products, user } from "@/lib/db/schema";
 import { getAppUrl } from "@/lib/app-url";
 import { getStripe } from "@/lib/stripe";
 import { decideTax } from "@/lib/tax/engine";
@@ -54,8 +54,15 @@ export async function POST(req: Request) {
     );
   }
 
+  const product = await db.query.products.findFirst({
+    where: eq(products.id, plan.productId),
+  });
+
   const stripe = getStripe(tenant);
   const appUrl = await getAppUrl();
+  const cancelPath = product?.slug
+    ? `/products/${product.slug}?checkout=cancel`
+    : "/products?checkout=cancel";
 
   let customerId = buyer.stripeCustomerId;
   if (!customerId) {
@@ -102,7 +109,7 @@ export async function POST(req: Request) {
     customer: customerId,
     line_items: [lineItem],
     success_url: `${appUrl}/account?checkout=success`,
-    cancel_url: `${appUrl}/pricing?checkout=cancel`,
+    cancel_url: `${appUrl}${cancelPath}`,
     metadata: {
       tenantId: tenant.tenant.id,
       userId: buyer.id,
